@@ -112,15 +112,17 @@
             btn.innerText = "Saving...";
             btn.style.backgroundColor = "#8e8e93";
 
-            // --- UPDATE THESE TWO LINES ---
-            const apiUrl = "https://transaction-api-1036329277666.us-central1.run.app/transactions";
-            const activeKey = "__HOLIDAY_API_KEY__";
-            // ------------------------------
+            // --- THE MAGIC PIPELINE VARIABLES ---
+            const apiUrl = "https://transaction-api-1036329277666.us-central1.run.app/transaction";
+            
+            // Do not change this text! Netlify will swap this string for your real password automatically.
+            const activeKey = "__HOLIDAY_API_KEY__"; 
+            // ------------------------------------
 
             const payload = {
                 amount: amount,
                 merchant: merchant,
-                location: "Web App", // Hardcoded since browsers handle location differently
+                location: "Web App",
                 split_input: split
             };
 
@@ -129,7 +131,7 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-API-Key": apiKey
+                        "X-API-Key": activeKey
                     },
                     body: JSON.stringify(payload)
                 });

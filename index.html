@@ -142,8 +142,11 @@
                     document.getElementById('amount').value = '';
                     document.getElementById('merchant').value = '';
                     document.getElementById('split').value = '';
-                } else {
-                    statusText.innerText = "❌ Failed to save.";
+                  } else {
+                    // 👇 WE CHANGED THESE TWO LINES 👇
+                    const serverError = await response.text();
+                    statusText.innerText = "❌ " + serverError;
+                    // --------------------------------
                     statusText.style.color = "#ff3b30";
                 }
             } catch (error) {

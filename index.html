@@ -112,12 +112,8 @@
             btn.innerText = "Saving...";
             btn.style.backgroundColor = "#8e8e93";
 
-            // --- THE MAGIC PIPELINE VARIABLES ---
-            const apiUrl = "https://transaction-api-1036329277666.us-central1.run.app/transaction";
-            
-            // Do not change this text! Netlify will swap this string for your real password automatically.
-            const activeKey = "__HOLIDAY_API_KEY__"; 
-            // ------------------------------------
+            // 1. Point this to your new Netlify Function!
+            const apiUrl = "/.netlify/functions/save-tx";
 
             const payload = {
                 amount: amount,
@@ -127,11 +123,12 @@
             };
 
             try {
+                // 2. Notice we completely removed the "X-API-Key" header here. 
+                // Netlify adds it for us behind the scenes!
                 const response = await fetch(apiUrl, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        "X-API-Key": activeKey
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify(payload)
                 });
@@ -142,11 +139,9 @@
                     document.getElementById('amount').value = '';
                     document.getElementById('merchant').value = '';
                     document.getElementById('split').value = '';
-                  } else {
-                    // 👇 WE CHANGED THESE TWO LINES 👇
+                } else {
                     const serverError = await response.text();
                     statusText.innerText = "❌ " + serverError;
-                    // --------------------------------
                     statusText.style.color = "#ff3b30";
                 }
             } catch (error) {

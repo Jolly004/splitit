@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SplitIt</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 40px;
+        }
+        h2 { text-align: center; color: #1c1c1e; margin-top: 0; }
+        .input-group { margin-bottom: 16px; }
+        label {
+            display: block;
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5ea;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #fafafa;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:active { background-color: #005bb5; }
+        #status {
+            text-align: center;
+            margin-top: 16px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Holiday Splitter</h2>
+        
+        <div class="input-group">
+            <label>Amount (€)</label>
+            <input type="number" id="amount" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="input-group">
+            <label>Merchant</label>
+            <input type="text" id="merchant" placeholder="e.g., Pasta Shop" required>
+        </div>
+
+        <div class="input-group">
+            <label>Who is splitting? (e.g., dc:10, all)</label>
+            <input type="text" id="split" placeholder="Shorthand or 'all'" required>
+        </div>
+
+        <button onclick="submitTransaction()" id="submitBtn">Save Transaction</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function submitTransaction() {
+            const btn = document.getElementById('submitBtn');
+            const statusText = document.getElementById('status');
+            
+            const amount = parseFloat(document.getElementById('amount').value);
+            const merchant = document.getElementById('merchant').value;
+            const split = document.getElementById('split').value;
+
+            if (!amount || !merchant || !split) {
+                alert("Please fill out all fields!");
+                return;
+            }
+
+            btn.innerText = "Saving...";
+            btn.style.backgroundColor = "#8e8e93";
+
+            // --- UPDATE THESE TWO LINES ---
+            const apiUrl = "https://transaction-api-YOUR_URL_HERE.a.run.app/transaction";
+            const apiKey = "YOUR_SECRET_SHORTCUT_PASSWORD";
+            // ------------------------------
+
+            const payload = {
+                amount: amount,
+                merchant: merchant,
+                location: "Web App", // Hardcoded since browsers handle location differently
+                split_input: split
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-API-Key": apiKey
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    statusText.innerText = "✅ Saved Successfully!";
+                    statusText.style.color = "#34c759";
+                    document.getElementById('amount').value = '';
+                    document.getElementById('merchant').value = '';
+                    document.getElementById('split').value = '';
+                } else {
+                    statusText.innerText = "❌ Failed to save.";
+                    statusText.style.color = "#ff3b30";
+                }
+            } catch (error) {
+                statusText.innerText = "❌ Network Error.";
+                statusText.style.color = "#ff3b30";
+            }
+
+            statusText.style.display = "block";
+            btn.innerText = "Save Transaction";
+            btn.style.backgroundColor = "#007aff";
+            
+            setTimeout(() => { statusText.style.display = "none"; }, 3000);
+        }
+    </script>
+</body>
+</html>

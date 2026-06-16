@@ -9,6 +9,14 @@
     <link rel="manifest" href="manifest.json">
     
     <style>
+        
+        hr { border: none; border-top: 1px solid #e5e5ea; margin: 24px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e5e5ea; }
+        th { color: #8e8e93; font-size: 14px; font-weight: 600; }
+        td { font-size: 16px; color: #1c1c1e; }
+        .amount-col { text-align: right; font-weight: bold; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f2f2f7;
@@ -93,6 +101,19 @@
 
         <button onclick="submitTransaction()" id="submitBtn">Save Transaction</button>
         <p id="status"></p>
+        <hr>
+        <h2>Group Tallies</h2>
+        <table id="summaryTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th class="amount-col">Total Owed</th>
+                </tr>
+            </thead>
+            <tbody id="summaryBody">
+                <tr><td colspan="2" style="text-align: center; color: #8e8e93;">Loading...</td></tr>
+            </tbody>
+        </table
     </div>
 
     <script>
@@ -155,6 +176,34 @@
             
             setTimeout(() => { statusText.style.display = "none"; }, 3000);
         }
+        async function loadSummary() {
+            const tbody = document.getElementById('summaryBody');
+            try {
+                // Call your new secure proxy
+                const response = await fetch('/.netlify/functions/get-summary');
+                if (response.ok) {
+                    const totals = await response.json();
+                    tbody.innerHTML = ''; // Clear the "Loading..." text
+                    
+                    // Loop through the data and build the table rows
+                    for (const [name, amount] of Object.entries(totals)) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${name}</td>
+                            <td class="amount-col">€${amount.toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">Failed to load data.</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">Network error.</td></tr>';
+            }
+        }
+
+        // Run this function immediately when the app opens!
+        loadSummary();
     </script>
 </body>
 </html>
